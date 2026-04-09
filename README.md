@@ -14,9 +14,9 @@ Assets/
 │ │ │ │ └── SaveGameHandler.cs Сериализация/десериализация (JSON/Binary)
 │ │ │ │  
 │ │ │ └── Checkpoints/ Модуль чекпоинтов
-│ │ │ ├── Checkpoint.cs Компонент триггерной зоны
-| | | ├── CheckpointTrigger.cs Доп логика триггера
-│ │ │ └── RespawnManager.cs Логика восстановления при смерти
+│ │ │ │ ├── Checkpoint.cs Компонент триггерной зоны
+| | | │ ├── CheckpointTrigger.cs Доп логика триггера
+│ │ │ │ └── RespawnManager.cs Логика восстановления при смерти
 │ │ |
 │ │ |
 │ │ └── GameSpecific/ Конкретные реализации под проект
