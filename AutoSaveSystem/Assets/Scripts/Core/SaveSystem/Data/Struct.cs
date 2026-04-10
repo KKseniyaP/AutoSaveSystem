@@ -1,20 +1,29 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
-[Serializable]
-public class Struct
+namespace Core.SaveSystem.Data
 {
-    public Vector3 position;
-    public Quaternion rotation;
-    public float batteryLevel;
-    public List<string> completedTasks;
-
-    public Struct()
+    /// <summary>
+    /// Структура для хранения всех сохраняемых данных
+    /// </summary>
+    [Serializable]
+    public struct Struct
     {
-        position = Vector3.zero;
-        rotation = Quaternion.identity;
-        batteryLevel = 100f;
-        completedTasks = new List<string>();
+        // Позиция робота
+        public Vector3 robotPosition;
+        
+        // Вращение робота
+        public Quaternion robotRotation;
+        
+        // Заряд батареи
+        public float batteryCharge;
+        
+        // Выполненные задания (квесты)
+        public bool[] completedTasks;
+        
+        // Текущий активный чекпоинт
+        public int currentCheckpointIndex;
+        
+        // Дополнительные данные можно добавлять по мере необходимости
     }
 }

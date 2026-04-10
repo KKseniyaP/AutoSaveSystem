@@ -1,85 +1,73 @@
 using UnityEngine;
 using System.IO;
-using Core.SaveSystem.Data; //используется файл struct
+using Core.SaveSystem.Data;
 
-/// <summary>
-/// Система загрузки и выгрузки данных через JSON
-/// </summary>
-public class SaveSystemJSON : MonoBehaviour
+namespace Core.SaveSystem
 {
-    private static string savePath => Application.persistentDataPath + "/save.json";
-
-    // ==================== СОХРАНЕНИЕ (СЕРИАЛИЗАЦИЯ) ====================
-    public static void SaveData(Transform robotTransform, float batteryCharge, bool[] completedTasks)
+    /// <summary>
+    /// РЎРёСЃС‚РµРјР° Р·Р°РіСЂСѓР·РєРё Рё РІС‹РіСЂСѓР·РєРё РґР°РЅРЅС‹С… С‡РµСЂРµР· JSON
+    /// </summary>
+    public static class SaveGameHandler
     {
-        // Создаем объект с данными
-        SaveDataJSON saveData = new SaveDataJSON();
+        private static string savePath => Application.persistentDataPath + "/save.json";
 
-        // Позиция
-        saveData.positionX = robotTransform.position.x;
-        saveData.positionY = robotTransform.position.y;
-        saveData.positionZ = robotTransform.position.z;
-
-        // Вращение
-        saveData.rotationX = robotTransform.rotation.x;
-        saveData.rotationY = robotTransform.rotation.y;
-        saveData.rotationZ = robotTransform.rotation.z;
-        saveData.rotationW = robotTransform.rotation.w;
-
-        // Батарея и задачи
-        saveData.batteryCharge = batteryCharge;
-        saveData.completedTasks = completedTasks;
-
-        // Сериализация: объект ? JSON ? файл
-        string jsonString = JsonUtility.ToJson(saveData, true);
-        File.WriteAllText(savePath, jsonString);
-
-        Debug.Log($"? Данные сохранены в JSON: {savePath}");
-    }
-
-    // ==================== ЗАГРУЗКА (ДЕСЕРИАЛИЗАЦИЯ) ====================
-    public static SaveDataJSON LoadData()
-    {
-        if (!File.Exists(savePath))
+        // ==================== РЎРћРҐР РђРќР•РќРР• (РЎР•Р РРђР›РР—РђР¦РРЇ) ====================
+        public static void SaveToFile(Struct saveData)
         {
-            Debug.LogWarning("Файл сохранения не найден!");
-            return null;
+            // РљРѕРЅРІРµСЂС‚РёСЂСѓРµРј Struct РІ SaveDataJSON
+            SaveDataJSON jsonData = new SaveDataJSON();
+            jsonData.positionX = saveData.robotPosition.x;
+            jsonData.positionY = saveData.robotPosition.y;
+            jsonData.positionZ = saveData.robotPosition.z;
+            jsonData.rotationX = saveData.robotRotation.x;
+            jsonData.rotationY = saveData.robotRotation.y;
+            jsonData.rotationZ = saveData.robotRotation.z;
+            jsonData.rotationW = saveData.robotRotation.w;
+            jsonData.batteryCharge = saveData.batteryCharge;
+            jsonData.completedTasks = saveData.completedTasks;
+            jsonData.currentCheckpointIndex = saveData.currentCheckpointIndex;
+
+            // РЎРµСЂРёР°Р»РёР·Р°С†РёСЏ: РѕР±СЉРµРєС‚ в†’ JSON в†’ С„Р°Р№Р»
+            string jsonString = JsonUtility.ToJson(jsonData, true);
+            File.WriteAllText(savePath, jsonString);
+
+            Debug.Log($"Р”Р°РЅРЅС‹Рµ СЃРѕС…СЂР°РЅРµРЅС‹ РІ JSON: {savePath}");
         }
 
-        // Десериализация: файл ? JSON ? объект
-        string jsonString = File.ReadAllText(savePath);
-        SaveDataJSON saveData = JsonUtility.FromJson<SaveDataJSON>(jsonString);
+        // ==================== Р—РђР“Р РЈР—РљРђ (Р”Р•РЎР•Р РРђР›РР—РђР¦РРЇ) ====================
+        public static Struct LoadFromFile()
+        {
+            if (!File.Exists(savePath))
+            {
+                Debug.LogWarning("Р¤Р°Р№Р» СЃРѕС…СЂР°РЅРµРЅРёСЏ РЅРµ РЅР°Р№РґРµРЅ!");
+                return new Struct();
+            }
 
-        Debug.Log($"? Данные загружены из JSON: {savePath}");
+            // Р”РµСЃРµСЂРёР°Р»РёР·Р°С†РёСЏ: С„Р°Р№Р» в†’ JSON в†’ РѕР±СЉРµРєС‚
+            string jsonString = File.ReadAllText(savePath);
+            SaveDataJSON jsonData = JsonUtility.FromJson<SaveDataJSON>(jsonString);
 
-        return saveData;
+            // РљРѕРЅРІРµСЂС‚РёСЂСѓРµРј SaveDataJSON РІ Struct
+            Struct saveData = new Struct();
+            saveData.robotPosition = new Vector3(jsonData.positionX, jsonData.positionY, jsonData.positionZ);
+            saveData.robotRotation = new Quaternion(jsonData.rotationX, jsonData.rotationY, jsonData.rotationZ, jsonData.rotationW);
+            saveData.batteryCharge = jsonData.batteryCharge;
+            saveData.completedTasks = jsonData.completedTasks;
+            saveData.currentCheckpointIndex = jsonData.currentCheckpointIndex;
+
+            Debug.Log($"Р”Р°РЅРЅС‹Рµ Р·Р°РіСЂСѓР¶РµРЅС‹ РёР· JSON: {savePath}");
+
+            return saveData;
+        }
+
+        // РџСЂРѕРІРµСЂРєР° РЅР°Р»РёС‡РёСЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ
+        public static bool HasSave() => File.Exists(savePath);
+
+        // РЈРґР°Р»РµРЅРёРµ СЃРѕС…СЂР°РЅРµРЅРёСЏ
+        public static void DeleteSave()
+        {
+            if (File.Exists(savePath)) 
+                File.Delete(savePath);
+        }
     }
-
-    // Проверка наличия сохранения
-    public static bool HasSave() => File.Exists(savePath);
-
-    // Удаление сохранения
-    public static void DeleteSave()
-    {
-        if (File.Exists(savePath)) File.Delete(savePath);
-    }
-}
-
-/// <summary>
-/// Класс для хранения данных (должен быть сериализуемым)
-/// </summary>
-[System.Serializable]
-public class SaveDataJSON
-{
-    public float positionX;
-    public float positionY;
-    public float positionZ;
-
-    public float rotationX;
-    public float rotationY;
-    public float rotationZ;
-    public float rotationW;
-
-    public float batteryCharge;
-    public bool[] completedTasks;
 }

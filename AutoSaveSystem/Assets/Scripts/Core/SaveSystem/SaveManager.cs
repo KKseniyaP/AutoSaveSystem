@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using Core.SaveSystem.Data;
 using Core.SaveSystem.Interfaces;
-using System.Diagnostics;
 
 namespace Core.SaveSystem
 {
@@ -10,7 +9,6 @@ namespace Core.SaveSystem
     /// Главный менеджер сохранений.
     /// Управляет всеми объектами, которые реализуют ISaveable.
     /// </summary>
-
     public class SaveManager : MonoBehaviour
     {
         public static SaveManager Instance { get; private set; }
@@ -22,7 +20,7 @@ namespace Core.SaveSystem
 
         private void Awake()
         {
-            //Синглтон
+            // Синглтон
             if (Instance != null && Instance != this)
             {
                 Destroy(gameObject);
@@ -34,15 +32,14 @@ namespace Core.SaveSystem
 
         private void Start()
         {
-            //при старте игры пробум загрузить сохранение
+            // при старте игры пробуем загрузить сохранение
             LoadGame();
         }
 
         /// <summary>
         /// Зарегистрировать объект в системе сохранений
         /// </summary>
-        /// 
-        public void RegisterSaveable (Isaveable saveable)
+        public void RegisterSaveable(ISaveable saveable)  // ISaveable, не Isaveable!
         {
             if (!_saveableObjects.Contains(saveable))
             {
@@ -54,20 +51,18 @@ namespace Core.SaveSystem
         /// <summary>
         /// Отменить регистрацию объекта
         /// </summary>
-        /// 
-        public void InregisterSaveable(ISaveable saveable)
+        public void UnregisterSaveable(ISaveable saveable)  // ISaveable, не Isaveable!
         {
             if (_saveableObjects.Contains(saveable))
             {
                 _saveableObjects.Remove(saveable);
-                Dubug.Log($"[SaveManager] Отменена регистрация: {saveable.GetType().Name}");
+                Debug.Log($"[SaveManager] Отменена регистрация: {saveable.GetType().Name}");  // Debug, не Dubug!
             }
         }
 
         /// <summary>
         /// Сохранить игру
         /// </summary>
-        /// 
         public void SaveGame()
         {
             // Создаём новый контейнер для данных
@@ -92,12 +87,6 @@ namespace Core.SaveSystem
         {
             // Загружаем данные из файла
             Struct loadedData = SaveGameHandler.LoadFromFile();
-
-            if (loadedData == null)
-            {
-                Debug.Log("[SaveManager] Файл сохранения не найден, создаём новые данные");
-                return;
-            }
 
             // Просим каждый зарегистрированный объект восстановиться из данных
             foreach (ISaveable saveable in _saveableObjects)
