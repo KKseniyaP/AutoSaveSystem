@@ -1,4 +1,5 @@
 
+using Core.SaveSystem;
 using UnityEngine;
 
 public class CheckpointTrigger : MonoBehaviour
@@ -43,6 +44,8 @@ public class CheckpointTrigger : MonoBehaviour
         {
             successSound.Play();
         }
+
+        SaveManager.Instance.SaveGame(); // запись данных в файл на диске
 
         // 4. сообщение в консоль
         Debug.Log("Прогресс сохранен! Чекпоинт пройден.");
