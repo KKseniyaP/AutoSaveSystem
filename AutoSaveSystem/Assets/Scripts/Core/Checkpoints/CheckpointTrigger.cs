@@ -1,5 +1,5 @@
-
 using Core.SaveSystem;
+using System.Diagnostics;
 using UnityEngine;
 
 public class CheckpointTrigger : MonoBehaviour
@@ -8,6 +8,11 @@ public class CheckpointTrigger : MonoBehaviour
     public Light checkpointLight;       // ссылка на лампочку
     public ParticleSystem successParticles; // ссылка на систему частиц (искры/конфетти)
     public AudioSource successSound;    // ссылка на звук
+	public RespawnManager respawnManager;
+	
+	//индекс чекпоинта
+    [Header("Настройки чекпоинта")]
+    public int checkpointIndex = 0;
 
     // флаг, чтобы чекпоинт сохранял игру только один раз
     private bool isActivated = false;
@@ -44,11 +49,20 @@ public class CheckpointTrigger : MonoBehaviour
         {
             successSound.Play();
         }
+		
+		// 4. регистрируем чекпоинт в RespawnManager
+        if (RespawnManager.Instance != null)
+        {
+            RespawnManager.Instance.RegisterCheckpoint(checkpointIndex, transform.position, transform.rotation);
+        }
+        else
+        {
+            UnityEngine.Debug.LogWarning("RespawnManager.Instance не найден!");
+        }
 
-        SaveManager.Instance.SaveGame(); // запись данных в файл на диске
+        SaveManager.Instance?.SaveGame();
 
-        // 4. сообщение в консоль
-        Debug.Log("Прогресс сохранен! Чекпоинт пройден.");
+        UnityEngine.Debug.Log("Прогресс сохранен! Чекпоинт пройден.");
 
     }
 }

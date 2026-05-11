@@ -29,6 +29,17 @@ namespace Core.SaveSystem
             Instance = this;
             DontDestroyOnLoad(gameObject);
         }
+		
+		/// <summary>
+        /// Вызывается при закрытии приложения 
+        /// </summary>
+        private void OnApplicationQuit()
+         {
+            Debug.Log("[SaveManager] Приложение закрывается. Экстренное сохранение...");
+            SaveGame();
+            PlayerPrefs.Save();
+         }
+
 
         private void Start()
         {
